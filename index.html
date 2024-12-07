@@ -6,6 +6,11 @@
     <title>Happy 23rd Birthday!</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Add Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js"></script>
+    
+    <!-- Your previous styles here -->
     <style>
         @keyframes pulse-ring {
             0% {
@@ -35,71 +40,92 @@
             z-index: -1;
         }
     </style>
+
+    <!-- Initialize Firebase -->
+    <script>
+        // Replace with your Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAszr8SmH-6nwcuyCQzb4nGgu8u4FiJl2o",
+            authDomain: "birthday-wishes-1b80e.firebaseapp.com",
+            databaseURL: "https://birthday-wishes-1b80e-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "birthday-wishes-1b80e",
+            storageBucket: "birthday-wishes-1b80e.firebasestorage.app",
+            messagingSenderId: "611707357918",
+            appId: "1:611707357918:web:5f754d3066b0e1f6b3d04f"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Function to submit wish
+        function submitWish(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const message = document.getElementById('message').value;
+            const timestamp = new Date().toISOString();
+
+            // Push wish to Firebase
+            database.ref('wishes').push({
+                name: name,
+                message: message,
+                timestamp: timestamp
+            }).then(() => {
+                // Clear form
+                document.getElementById('wishForm').reset();
+                alert('Thank you for your wish!');
+            }).catch((error) => {
+                alert('Error submitting wish: ' + error.message);
+            });
+        }
+
+        // Function to load wishes
+        function loadWishes() {
+            const wishesDiv = document.getElementById('wishes-container');
+            
+            database.ref('wishes').on('value', (snapshot) => {
+                wishesDiv.innerHTML = ''; // Clear current wishes
+                
+                snapshot.forEach((childSnapshot) => {
+                    const wish = childSnapshot.val();
+                    const wishHTML = `
+                        <div class="border-b border-emerald-200 pb-6">
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-user-circle text-2xl text-emerald-500 mr-2"></i>
+                                <p class="font-semibold text-xl text-blue-700">${wish.name}</p>
+                            </div>
+                            <p class="text-emerald-900 text-lg">${wish.message}</p>
+                        </div>
+                    `;
+                    wishesDiv.innerHTML = wishHTML + wishesDiv.innerHTML; // Add new wishes at top
+                });
+            });
+        }
+
+        // Load wishes when page loads
+        window.onload = loadWishes;
+    </script>
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-green-50 to-emerald-50 min-h-screen">
+    <!-- Previous content remains same until form section -->
     <div class="container mx-auto px-4 py-8">
-        <!-- Header Section with Animation -->
-        <header class="text-center mb-12 animate-bounce">
-            <h1 class="text-6xl font-bold text-blue-600 mb-4">Happy 23rd Birthday! 🎂</h1>
-            <p class="text-2xl text-emerald-500">Let's make this day unforgettable!</p>
-            <div class="mt-4">
-                <span class="text-3xl mx-1">🎉</span>
-                <span class="text-3xl mx-1">🎈</span>
-                <span class="text-3xl mx-1">🎁</span>
-            </div>
-        </header>
+        <!-- Previous sections remain same -->
 
-        <!-- Main Photo -->
-        <div class="mb-12">
-            <div class="bg-gradient-to-br from-white to-blue-50 rounded-xl shadow-2xl p-6 text-center transform hover:scale-105 transition duration-300">
-                <img src="/api/placeholder/800/400" alt="Birthday Celebration" class="mx-auto rounded-lg mb-4 w-full object-cover">
-                <p class="text-xl text-blue-600 font-semibold italic">Celebrating 23 Amazing Years!</p>
-            </div>
-        </div>
-
-        <!-- Photo Gallery -->
-        <div class="mb-12">
-            <h2 class="text-4xl font-bold text-emerald-600 mb-6 text-center">Memory Lane 📸</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Gallery Item 1 -->
-                <div class="bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition duration-300">
-                    <img src="/api/placeholder/400/300" alt="Memory 1" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <p class="text-emerald-700">Childhood memories</p>
-                    </div>
-                </div>
-                <!-- Gallery Item 2 -->
-                <div class="bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition duration-300">
-                    <img src="/api/placeholder/400/300" alt="Memory 2" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <p class="text-emerald-700">School days</p>
-                    </div>
-                </div>
-                <!-- Gallery Item 3 -->
-                <div class="bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition duration-300">
-                    <img src="/api/placeholder/400/300" alt="Memory 3" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <p class="text-emerald-700">Recent adventures</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Wishes Section with Enhanced Design -->
+        <!-- Updated Wishes Form -->
         <div class="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-xl shadow-2xl p-8 mb-12">
             <h2 class="text-4xl font-bold text-blue-600 mb-6 text-center">Share Your Wishes ✨</h2>
-            <form class="space-y-6">
+            <form id="wishForm" onsubmit="submitWish(event)" class="space-y-6">
                 <div>
                     <label class="block text-emerald-700 text-lg mb-2">Your Name:</label>
-                    <input type="text" class="w-full p-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 bg-white" placeholder="Enter your name">
+                    <input type="text" id="name" class="w-full p-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 bg-white" placeholder="Enter your name" required>
                 </div>
                 <div>
                     <label class="block text-emerald-700 text-lg mb-2">Your Message:</label>
-                    <textarea class="w-full p-3 border border-blue-200 rounded-lg h-32 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 bg-white" placeholder="Write your birthday wish here..."></textarea>
+                    <textarea id="message" class="w-full p-3 border border-blue-200 rounded-lg h-32 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 bg-white" placeholder="Write your birthday wish here..." required></textarea>
                 </div>
                 <div class="text-center">
-                    <!-- Updated button with animation -->
-                    <button class="pulse-button bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-lg hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                    <button type="submit" class="pulse-button bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-lg hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg">
                         <span class="relative z-10 flex items-center justify-center">
                             <i class="fas fa-heart mr-2 animate-bounce"></i>
                             Send Wish
@@ -109,24 +135,11 @@
             </form>
         </div>
 
-        <!-- Display Wishes with Enhanced Design -->
+        <!-- Updated Wishes Display Section -->
         <div class="bg-gradient-to-br from-blue-50 to-emerald-50 rounded-xl shadow-2xl p-8">
             <h2 class="text-4xl font-bold text-blue-600 mb-6 text-center">Birthday Wishes 💝</h2>
-            <div class="space-y-6">
-                <div class="border-b border-emerald-200 pb-6">
-                    <div class="flex items-center mb-2">
-                        <i class="fas fa-user-circle text-2xl text-emerald-500 mr-2"></i>
-                        <p class="font-semibold text-xl text-blue-700">Mom & Dad</p>
-                    </div>
-                    <p class="text-emerald-900 text-lg">Happy birthday, sweetheart! We're so proud of the person you've become. May this year bring you joy, success, and all your dreams come true! ❤️</p>
-                </div>
-                <div class="border-b border-emerald-200 pb-6">
-                    <div class="flex items-center mb-2">
-                        <i class="fas fa-user-circle text-2xl text-emerald-500 mr-2"></i>
-                        <p class="font-semibold text-xl text-blue-700">Best Friend</p>
-                    </div>
-                    <p class="text-emerald-900 text-lg">Hey buddy! Happy 23rd! Here's to another year of amazing adventures together! 🎉</p>
-                </div>
+            <div id="wishes-container" class="space-y-6">
+                <!-- Wishes will be loaded here dynamically -->
             </div>
         </div>
     </div>
